@@ -1,60 +1,13 @@
 const request = require('supertest');
 const { set } = require('../app');
 const app = require('../app');
-const { sequelize } = require('../models');
-const { queryInterface } = sequelize;
 const APIURI = '/api/v1'
-
-// beforeAll(done => {
-// 	logThis(`creating 1st user`, true);
-// 	// create 1st customer
-// 	User.create({
-// 		name: nameCustomer1,
-// 		email: emailCustomer1,
-// 		role,
-// 		password
-// 	})
-// 		.then(result => {
-// 			idCustomer1 = result.id
-// 			logThis(`1st user created`, true);
-// 			// create 2nd customer
-// 			logThis(`creating 2nd user`, true);
-// 			return User.create({
-// 				name: nameCustomer2,
-// 				email: emailCustomer2,
-// 				role,
-// 				password
-// 			})
-// 		})
-// 		.catch(err => {
-// 			console.log('this is error from cart test', err);
-// 		})
-// 		.finally(() => {
-// 			done()
-// 		})
-// })
-
-
-// afterAll(done => {
-// 	logThis('delete data after testing', true)
-// 	queryInterface.bulkDelete('Carts', {})
-// 		.then(_ => {
-// 			return queryInterface.bulkDelete('Products', {})
-// 		})
-// 		.catch(err => {
-// 			console.log(`oops something is wrong in deleting!`, err);
-// 		})
-// 		.finally(() => {
-// 			logThis('deletion done', true)
-// 			done()
-// 		})
-// })
 
 describe('Characters Testing', () => {
   //#region POST
-	describe('POST /characters => add a new character', () => {
+	describe.skip('POST /characters => add a new character', () => {
 		describe('success case', () => {
-      test('use json; return status 201; success message; created character; wizard value', async (done) => {
+      test('use json; return status 201; success message; created character; check wizard value', async (done) => {
         const res = await request(app)
         .post(`${APIURI}/characters`)
         .send({
@@ -76,7 +29,7 @@ describe('Characters Testing', () => {
         }))
         done()
       })
-			test('use www-form; return status 201; success message; created character; wizard value', async (done) => {
+			test('use www-form; return status 201; success message; created character', async (done) => {
         const res = await request(app)
         .post(`${APIURI}/characters`)
         .type('form')
@@ -317,7 +270,7 @@ describe('Characters Testing', () => {
 
           expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
+          expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
           done()
         })
       })
@@ -334,7 +287,7 @@ describe('Characters Testing', () => {
 
           expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
+          expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
           done()
         })
       })
@@ -380,27 +333,270 @@ describe('Characters Testing', () => {
   //#endregion 
 
   //#region PUT
-	describe('PUT /carts/:id => update character name & power', () => {
+	describe.skip('PUT /carts/:id => update character name & power', () => {
 		describe('success case', () => {
-			test('should return success message; status 200; updated character', async (done) => {
-        const res = await request(app).put(`${APIURI}/characters/1`)
+			test('should return success message; status 200; updated character; check wizard value', async (done) => {
+        const res = await request(app)
+        .put(`${APIURI}/characters/1`)
+        .send({
+          name: 'Gandalf The Grey',
+          power: 90
+        })
+        .set('Accept', 'application/json')
 
-				
-			})
-      
-      // check empty name
-      // check null name
-      // check empty power
-      // check null power
-      // check elf update value
-      // check hobbit update value
+        expect(res.error).toEqual(false)
+        expect(res.status).toEqual(200)
+        expect(res.body).toHaveProperty('message', 'Character successfully updated')
+        expect(res.body).toHaveProperty('updated', expect.objectContaining({
+          name: 'Gandalf The Grey',
+          character_code: expect.any(Number),
+          power: 90,
+          value: 135
+        }))
+        done()
+      })
+      test('use www-form; return success message; status 200; updated character', async (done) => {
+        const res = await request(app)
+        .put(`${APIURI}/characters/1`)
+        .type('form')
+        .send({
+          name: 'Gandalf The Grey',
+          power: 90
+        })
+
+        expect(res.error).toEqual(false)
+        expect(res.status).toEqual(200)
+        expect(res.body).toHaveProperty('message', 'Character successfully updated')
+        expect(res.body).toHaveProperty('updated', expect.objectContaining({
+          name: 'Gandalf The Grey',
+          character_code: expect.any(Number),
+          power: 90,
+          value: 135
+        }))
+        done()
+      })
+      describe('Empty power', () => {
+        test('should return success message; status 200; updated character', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/1`)
+          .send({
+            name: 'Gandalf the White',
+            power: ''
+          })
+          .set('Accept', 'application/json')
+  
+          expect(res.error).toEqual(false)
+          expect(res.status).toEqual(200)
+          expect(res.body).toHaveProperty('message', 'Character successfully updated')
+          expect(res.body).toHaveProperty('updated', expect.objectContaining({
+            name: 'Gandalf The White',
+            character_code: expect.any(Number),
+            power: 90,
+            value: 135
+          }))
+          done()
+        })
+      })
+      describe('Null power', () => {
+        test('should return success message; status 200; updated character', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/1`)
+          .send({
+            name: 'Gandalf the White'
+          })
+          .set('Accept', 'application/json')
+  
+          expect(res.error).toEqual(false)
+          expect(res.status).toEqual(200)
+          expect(res.body).toHaveProperty('message', 'Character successfully updated')
+          expect(res.body).toHaveProperty('updated', expect.objectContaining({
+            name: 'Gandalf The White',
+            character_code: expect.any(Number),
+            power: 90,
+            value: 135
+          }))
+          done()
+        })
+      })
+      describe('Empty name', () => {
+        test('should return success message; status 200; updated character', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/1`)
+          .send({
+            name: '',
+            power: 200
+          })
+          .set('Accept', 'application/json')
+  
+          expect(res.error).toEqual(false)
+          expect(res.status).toEqual(200)
+          expect(res.body).toHaveProperty('message', 'Character successfully updated')
+          expect(res.body).toHaveProperty('updated', expect.objectContaining({
+            name: 'Gandalf The Grey',
+            character_code: expect.any(Number),
+            power: 200,
+            value: 300
+          }))
+          done()
+        })
+      })
+      describe('Null name', () => {
+        test('should return success message; status 200; updated character', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/1`)
+          .send({
+            power: 150
+          })
+          .set('Accept', 'application/json')
+  
+          expect(res.error).toEqual(false)
+          expect(res.status).toEqual(200)
+          expect(res.body).toHaveProperty('message', 'Character successfully updated')
+          expect(res.body).toHaveProperty('updated', expect.objectContaining({
+            name: 'Gandalf The Grey',
+            character_code: expect.any(Number),
+            power: 150,
+            value: 225
+          }))
+          done()
+        })
+      })
+      describe('Check elf update value', () => {
+        test('should return success message; status 200; updated character', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/2`)
+          .send({
+            power: 50
+          })
+          .set('Accept', 'application/json')
+  
+          expect(res.error).toEqual(false)
+          expect(res.status).toEqual(200)
+          expect(res.body).toHaveProperty('message', 'Character successfully updated')
+          expect(res.body).toHaveProperty('updated', expect.objectContaining({
+            name: 'Legolas',
+            character_code: expect.any(Number),
+            power: 50,
+            value: 57
+          }))
+          done()
+        })
+      })
+      describe('Check hobbit update (1)', () => {
+        test('should return success message; status 200; updated character', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/3`)
+          .send({
+            power: 20
+          })
+          .set('Accept', 'application/json')
+  
+          expect(res.error).toEqual(false)
+          expect(res.status).toEqual(200)
+          expect(res.body).toHaveProperty('message', 'Character successfully updated')
+          expect(res.body).toHaveProperty('updated', expect.objectContaining({
+            name: 'Frodo',
+            character_code: expect.any(Number),
+            power: 20,
+            value: 60
+          }))
+          done()
+        })
+      })
+      describe('Check hobbit update (2)', () => {
+        test('should return success message; status 200; updated character', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/3`)
+          .send({
+            power: 20
+          })
+          .set('Accept', 'application/json')
+  
+          expect(res.error).toEqual(false)
+          expect(res.status).toEqual(200)
+          expect(res.body).toHaveProperty('message', 'Character successfully updated')
+          expect(res.body).toHaveProperty('updated', expect.objectContaining({
+            name: 'Frodo',
+            character_code: expect.any(Number),
+            power: 10,
+            value: 20
+          }))
+          done()
+        })
+      })
 		})
 
-		describe('error case', () => {
-      // wrong uri
-      // wrong char id
-      // invalid pow (minus)
-      // invalid pow (string)
+		describe ('error case', () => {
+      describe ('Wrong URI', () => {
+        test ('return 404 message', async (done) => {
+          const res = await request(app).put(`${APIURI}/character/3`)
+          expect(res.error).toEqual(true)
+          expect(res.status).toEqual(404)
+          expect(res.body).toHaveProperty('message', 'API not found')
+          done()
+        })
+      })
+      describe('Wrong character ID', () => {
+        test('return 404 character not found message', async (done) => {
+          const res = await request(app).put(`${APIURI}/characters/100`)
+          expect(res.error).toEqual(true)
+          expect(res.status).toEqual(404)
+          expect(res.body).toHaveProperty('message', 'Character not found!')
+          done()
+        })
+      })
+      describe('Wrong character ID', () => {
+        test('return invalid power message; status 400', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/3`)
+          .send({ power: -10 })
+          .set('Accept', 'application/json')
+          
+          expect(res.error).toEqual(true)
+          expect(res.status).toEqual(400)
+          expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
+          done()
+        })
+      })
+      describe('Wrong character ID', () => {
+        test('return invalid power message; status 400', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/3`)
+          .send({ power: 'a' })
+          .set('Accept', 'application/json')
+          
+          expect(res.error).toEqual(true)
+          expect(res.status).toEqual(400)
+          expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
+          done()
+        })
+      })
+      describe('Update Character Code', () => {
+        test('return action forbidden message; status 403', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/3`)
+          .send({ character_code: 1 })
+          .set('Accept', 'application/json')
+          
+          expect(res.error).toEqual(true)
+          expect(res.status).toEqual(403)
+          expect(res.body).toHaveProperty('message', 'Requested Action is Forbidden!')
+          done()
+        })
+      })
+      describe('Update Character Value', () => {
+        test('return action forbidden message; status 403', async (done) => {
+          const res = await request(app)
+          .put(`${APIURI}/characters/3`)
+          .send({ value: 1 })
+          .set('Accept', 'application/json')
+          
+          expect(res.error).toEqual(true)
+          expect(res.status).toEqual(403)
+          expect(res.body).toHaveProperty('message', 'Requested Action is Forbidden!')
+          done()
+        })
+      })
 		})
   })
   //#endregion

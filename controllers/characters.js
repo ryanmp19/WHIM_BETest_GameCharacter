@@ -1,4 +1,6 @@
+const { request } = require("express")
 
+const { Character } = require('../models')
 
 class CharacterController {
   static create (req, res, next) {
