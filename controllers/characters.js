@@ -1,14 +1,15 @@
 const { request } = require("express")
 
-const { Character } = require('../models')
+const { Characters } = require('../models')
 
 class CharacterController {
   static create (req, res, next) {
     res.send('create a char')
   }
 
-  static getAll (req, res, next) {
-    res.send('get all characters')
+  static async getAll (req, res, next) {
+    const characters = await Characters.findAll()
+    res.status(200).json({ characters })
   }
 
   static update (req, res, next) {
