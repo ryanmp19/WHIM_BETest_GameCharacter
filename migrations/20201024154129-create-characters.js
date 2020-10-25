@@ -9,16 +9,19 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       character_code: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       power: {
-        type: Sequelize.INTEGER
+        allowNull: false,
+        type: Sequelize.DECIMAL(10, 1)
       },
       value: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL(10, 1)
       },
       createdAt: {
         allowNull: false,

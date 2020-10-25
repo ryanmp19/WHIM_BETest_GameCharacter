@@ -14,13 +14,63 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Characters.init({
-    name: DataTypes.STRING,
-    character_code: DataTypes.INTEGER,
-    power: DataTypes.INTEGER,
-    value: DataTypes.INTEGER
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notNull: {
+          args: true,
+          msg: 'Please input Character\'s Name'
+        },
+        notEmpty: {
+          args: true,
+          msg: 'Please input Character\'s Name'
+        }
+      }
+    },
+    character_code: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isIn: {
+          args: [[ 1, 2, 3 ]],
+          msg: 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\t\tWizard\n2\t\tElf\n3\t\tHobbit'
+        }
+      }
+    },
+    power: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      validate: {
+        min: {
+          args: 1,
+          msg: 'Character\'s Power must be a number greater than 1'
+        },
+        isNumeric: {
+          args: true,
+          msg: 'Character\'s Power must be a number greater than 1'
+        }
+      }
+    },
+    value: DataTypes.DECIMAL(10, 2)
   }, {
     sequelize,
     modelName: 'Characters',
+    hooks: {
+      beforeCreate: (character, opts) => {
+        switch (character.character_code) {
+          case 1:
+            character.value = 1.5 * character.power
+            break
+          case 2:
+            character.value = 2 + (1.1 * character.power)
+            break
+          case 3:
+            character.value = character.power < 20 ? 2 * character.power : 3 * character.power
+            break
+        }
+      }
+    }
   });
   return Characters;
 };
