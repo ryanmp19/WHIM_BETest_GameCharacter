@@ -7,6 +7,7 @@ router.use('/api/v1', CharacterRouter)
 
 // 404 Handler
 router.use(function (req, res, next) {
+  console.log(`404 handler`);
   res.status(404).json({
     message: 'API not found!'
   })

@@ -31,7 +31,27 @@ class CharacterController {
   }
 
   static update (req, res, next) {
-    res.send('update')
+    let payload = req.body
+
+    if (!payload.name || payload.name === '') delete payload.name
+    if (!payload.power || payload.power === '') delete payload.power
+
+    let { id } = req.params
+
+    Characters.update(payload, {
+      where: { id },
+      returning: true,
+      individualHooks: true
+    })
+      .then(updated => {
+        delete updated[1][0].dataValues.createdAt
+        delete updated[1][0].dataValues.updatedAt
+        res.status(200).json({
+          message: `Character ID:${updated[1][0].dataValues.id} successfully updated`,
+          updated: updated[1][0].dataValues,
+        })
+      })
+      .catch(e => next(e))
   }
 }
 
