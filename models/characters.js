@@ -14,13 +14,48 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Characters.init({
-    name: DataTypes.STRING,
-    character_code: DataTypes.INTEGER,
-    power: DataTypes.INTEGER,
-    value: DataTypes.INTEGER
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    character_code: {
+      type: DataTypes.INTEGER,
+      validate: {
+        isIn: {
+          args: [[ 1, 2, 3 ]],
+          msg: 'Invalid Character Code!'
+        }
+      }
+    },
+    power: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      validate: {
+        min: {
+          args: 1,
+          msg: 'Power minimum is 1'
+        }
+      }
+    },
+    value: DataTypes.DECIMAL(10, 2)
   }, {
     sequelize,
     modelName: 'Characters',
+    hooks: {
+      beforeCreate: (character, opts) => {
+        switch (character.character_code) {
+          case 1:
+            character.value = 1.5 * character.power
+            break
+          case 2:
+            character.value = 2 + (1.1 * character.power)
+            break
+          case 3:
+            character.value = character.power < 20 ? 2 * character.power : 3 * character.power
+            break
+        }
+      }
+    }
   });
   return Characters;
 };

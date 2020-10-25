@@ -38,7 +38,7 @@ afterAll(async (done) => {
 describe('Characters Testing', () => {
   //#region POST
 	describe('POST /characters => add a new character', () => {
-		describe('success case', () => {
+		describe.skip('success case', () => {
       test('use json; return status 201; success message; created character; check wizard value', async (done) => {
         const res = await request(app)
         .post(`${APIURI}/characters`)
@@ -55,8 +55,8 @@ describe('Characters Testing', () => {
         expect(res.body).toHaveProperty('created', expect.objectContaining({
           name: 'Vivi',
           character_code: 1,
-          power: 100,
-          value: 150
+          power: '100.0',
+          value: '150.0'
         }))
         done()
       })
@@ -76,26 +76,27 @@ describe('Characters Testing', () => {
         expect(res.body).toHaveProperty('created', expect.objectContaining({
           name: 'Vivi',
           character_code: 1,
-          power: 100,
-          value: 150
+          power: '100.0',
+          value: '150.0'
         }))
 			  done()
       })
       test('check create elf value', async (done) => {
         const res = await request(app)
         .post(`${APIURI}/characters`)
-        .type('form')
         .send({
           name: 'Dobby',
           character_code: 2,
           power: 15
         })
-        
+        .set('Accept', 'application-json')
+
         expect(res.body).toHaveProperty('created', expect.objectContaining({
+          id: expect.any(Number),
           name: 'Dobby',
           character_code: 2,
-          power: 15,
-          value: 18.5
+          power: '15.0',
+          value: '18.5'
         }))
 			  done()
       })
@@ -112,8 +113,8 @@ describe('Characters Testing', () => {
         expect(res.body).toHaveProperty('created', expect.objectContaining({
           name: 'Samwise Gamgee',
           character_code: 3,
-          power: 10,
-          value: 20
+          power: '10.0',
+          value: '20.0'
         }))
 			  done()
       })
@@ -122,7 +123,7 @@ describe('Characters Testing', () => {
         .post(`${APIURI}/characters`)
         .type('form')
         .send({
-          name: 'Samwise Gamgee',
+          name: 'Peregrin Took',
           character_code: 3,
           power: 20
         })
@@ -130,8 +131,8 @@ describe('Characters Testing', () => {
         expect(res.body).toHaveProperty('created', expect.objectContaining({
           name: 'Peregrin Took',
           character_code: 3,
-          power: 20,
-          value: 60
+          power: '20.0',
+          value: '60.0'
         }))
 			  done()
 			})
@@ -349,7 +350,7 @@ describe('Characters Testing', () => {
   //#endregion 
 
   //#region PUT
-	describe.skip('PUT /carts/:id => update character name & power', () => {
+	describe.skip('PUT /characters/:id => update character name & power', () => {
 		describe('success case', () => {
 			test('should return success message; status 200; updated character; check wizard value', async (done) => {
         const res = await request(app)

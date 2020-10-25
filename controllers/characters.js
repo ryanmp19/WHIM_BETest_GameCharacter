@@ -1,10 +1,28 @@
-const { request } = require("express")
-
 const { Characters } = require('../models')
 
 class CharacterController {
   static create (req, res, next) {
-    res.send('create a char')
+    let {
+      name,
+      character_code,
+      power
+    } = req.body
+
+    Characters.create({
+      name,
+      character_code: Number(character_code),
+      power: Number(power)
+    })
+      .then(created => {
+        delete created.dataValues.createdAt
+        delete created.dataValues.updatedAt
+        
+        res.status(201).json({
+          message: 'Character successfully created',
+          created
+        })
+      })
+      .catch(e => next(e))
   }
 
   static async getAll (req, res, next) {
