@@ -25,9 +25,16 @@ class CharacterController {
       .catch(e => next(e))
   }
 
-  static async getAll (req, res, next) {
-    const characters = await Characters.findAll()
-    res.status(200).json({ characters })
+  static getAll (req, res, next) {
+    Characters.findAll({
+      attributes: {
+        exclude: ['updatedAt', 'createdAt']
+      }
+    })
+      .then(characters => {
+        res.status(200).json({ characters })
+      })
+      .catch(e => next(e))
   }
 
   static update (req, res, next) {
