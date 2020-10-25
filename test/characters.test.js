@@ -31,14 +31,14 @@ beforeAll(async (done) => {
   done()
 })
 afterAll(async (done) => {
-	await queryInterface.bulkDelete('Characters', {})
+  await queryInterface.bulkDelete('Characters', {})
+  sequelize.close()
   done()
 })
 
 describe('Characters Testing', () => {
-  //#region POST
-	describe('POST /characters => add a new character', () => {
-		describe.skip('success case', () => {
+	describe.skip('POST /characters => add a new character', () => {
+		describe('success case', () => {
       test('use json; return status 201; success message; created character; check wizard value', async (done) => {
         const res = await request(app)
         .post(`${APIURI}/characters`)
@@ -138,7 +138,7 @@ describe('Characters Testing', () => {
 			})
 		})
 
-		describe.skip('error case', () => {
+		describe('error case', () => {
       describe('Wrong URI', () => {
         test ('should return 404 message', async (done) => {
           const res = await request(app).post(`${APIURI}/character`)
@@ -148,176 +148,175 @@ describe('Characters Testing', () => {
           done()
         })
       })
-      //#region Character Name
-      describe('Empty Character Name', () => {
-        test('should return empty name error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            name: '',
-            character_code: 1,
-            power: 100
-          })
-          set('Accept', 'application/json')
 
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input Character\'s Name')
-          done()
+      describe('Character Name Test', () => {
+        describe('Empty Character Name', () => {
+          test('should return empty name error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              name: '',
+              character_code: 1,
+              power: 100
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Please input Character\'s Name')
+            done()
+          })
+        })
+        describe.skip('Null Character Name', () => {
+          test('should return empty name error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              character_code: 1,
+              power: 100
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Please input Character\'s Name')
+            done()
+          })
         })
       })
-      describe('Null Character Name', () => {
-        test('should return empty name error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            character_code: 1,
-            power: 100
-          })
-          set('Accept', 'application/json')
 
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input Character\'s Name')
-          done()
+      describe('Character Code test', () => {
+        describe('Empty Character Code', () => {
+          test('should return invalid code error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              name: 'Shang Tsung',
+              character_code: '',
+              power: 100
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\t\tWizard\n2\t\tElf\n3\t\tHobbit')
+            done()
+          })
+        })
+        describe('Null Character Code', () => {
+          test('should return invalid code error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              name: 'Shang Tsung',
+              power: 100
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\t\tWizard\n2\t\tElf\n3\t\tHobbit')
+            done()
+          })
+        })
+        describe('Invalid Character Code (1)', () => {
+          test('should return invalid code error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              name: 'Shang Tsung',
+              character_code: 4,
+              power: 100
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\t\tWizard\n2\t\tElf\n3\t\tHobbit')
+            done()
+          })
+        })
+        describe('Invalid Character Code (2)', () => {
+          test('should return invalid code error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              name: 'Shang Tsung',
+              character_code: 'a',
+              power: 100
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\t\tWizard\n2\t\tElf\n3\t\tHobbit')
+            done()
+          })
         })
       })
-      //#endregion
 
-      //#region Character Code
-      describe('Empty Character Code', () => {
-        test('should return invalid code error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            name: 'Shang Tsung',
-            character_code: '',
-            power: 100
+      describe('Character Power Test', () => {
+        describe('Empty Character Power', () => {
+          test('should return empty power error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              name: 'Shang Tsung',
+              character_code: 1,
+              power: ''
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 1')
+            done()
           })
-          set('Accept', 'application/json')
-
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
-          done()
+        })
+        describe('Null Character Power', () => {
+          test('should return empty power error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              name: 'Shang Tsung',
+              character_code: 1,
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 1')
+            done()
+          })
+        })
+        describe('Invalid Character Power (1)', () => {
+          test('should return invalid power error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              name: 'Shang Tsung',
+              character_code: 1,
+              power: -100
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 1')
+            done()
+          })
+        })
+        describe('Invalid Character Power (2)', () => {
+          test('should return invalid power error and code 400', async (done) => {
+            const res = await request(app)
+            .post(`${APIURI}/characters`)
+            .send({
+              name: 'Shang Tsung',
+              character_code: 1,
+              power: 'a'
+            })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 1')
+            done()
+          })
         })
       })
-      describe('Null Character Code', () => {
-        test('should return invalid code error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            name: 'Shang Tsung',
-            power: 100
-          })
-          set('Accept', 'application/json')
-
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
-          done()
-        })
-      })
-      describe('Invalid Character Code (1)', () => {
-        test('should return invalid code error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            name: 'Shang Tsung',
-            character_code: 4,
-            power: 100
-          })
-          set('Accept', 'application/json')
-
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
-          done()
-        })
-      })
-      describe('Invalid Character Code (2)', () => {
-        test('should return invalid code error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            name: 'Shang Tsung',
-            character_code: 'a',
-            power: 100
-          })
-          set('Accept', 'application/json')
-
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
-          done()
-        })
-      })
-      //#endregion
-
-      //#region Character Power
-      describe('Empty Character Power', () => {
-        test('should return empty power error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            name: 'Shang Tsung',
-            character_code: 1,
-            power: ''
-          })
-          set('Accept', 'application/json')
-
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input Character\'s Power (Greater than 0)')
-          done()
-        })
-      })
-      describe('Null Character Power', () => {
-        test('should return empty power error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            name: 'Shang Tsung',
-            character_code: 1,
-          })
-          set('Accept', 'application/json')
-
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Please input Character\'s Power (Greater than 0)')
-          done()
-        })
-      })
-      describe('Invalid Character Power (1)', () => {
-        test('should return invalid power error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            name: 'Shang Tsung',
-            character_code: 4,
-            power: -100
-          })
-          set('Accept', 'application/json')
-
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
-          done()
-        })
-      })
-      describe('Invalid Character Power (2)', () => {
-        test('should return invalid power error and code 400', async (done) => {
-          const res = await request(app)
-          .post(`${APIURI}/character`)
-          .send({
-            name: 'Shang Tsung',
-            character_code: 4,
-            power: 'a'
-          })
-          set('Accept', 'application/json')
-
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
-          done()
-        })
-      })
-      //#endregion
 		})
 	})
-  //#endregion
 
-  //#region GET
 	describe.skip('GET /characters => get all created characters', () => {
 		describe('success case', () => {
 			test('should return list of all characters in database; status 200', async () => {
@@ -347,9 +346,7 @@ describe('Characters Testing', () => {
       })
 		})
 	})
-  //#endregion 
 
-  //#region PUT
 	describe.skip('PUT /characters/:id => update character name & power', () => {
 		describe('success case', () => {
 			test('should return success message; status 200; updated character; check wizard value', async (done) => {

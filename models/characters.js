@@ -17,13 +17,24 @@ module.exports = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        notNull: {
+          args: true,
+          msg: 'Please input Character\'s Name'
+        },
+        notEmpty: {
+          args: true,
+          msg: 'Please input Character\'s Name'
+        }
+      }
     },
     character_code: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       validate: {
         isIn: {
           args: [[ 1, 2, 3 ]],
-          msg: 'Invalid Character Code!'
+          msg: 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\t\tWizard\n2\t\tElf\n3\t\tHobbit'
         }
       }
     },
@@ -33,7 +44,11 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         min: {
           args: 1,
-          msg: 'Power minimum is 1'
+          msg: 'Character\'s Power must be a number greater than 1'
+        },
+        isNumeric: {
+          args: true,
+          msg: 'Character\'s Power must be a number greater than 1'
         }
       }
     },
