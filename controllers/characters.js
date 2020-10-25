@@ -38,20 +38,27 @@ class CharacterController {
 
     let { id } = req.params
 
-    Characters.update(payload, {
-      where: { id },
-      returning: true,
-      individualHooks: true
-    })
-      .then(updated => {
-        delete updated[1][0].dataValues.createdAt
-        delete updated[1][0].dataValues.updatedAt
-        res.status(200).json({
-          message: `Character ID:${updated[1][0].dataValues.id} successfully updated`,
-          updated: updated[1][0].dataValues,
-        })
+    if ('character_code' in payload || 'value' in payload) next({ name: 'ForbiddenAction' })
+    else {
+      Characters.update(payload, {
+        where: { id },
+        returning: true,
+        individualHooks: true
       })
-      .catch(e => next(e))
+        .then(updated => {
+          if (updated[0] === 0) {
+            next({ name: 'InvalidCharacterID' })
+          } else {
+            delete updated[1][0].dataValues.createdAt
+            delete updated[1][0].dataValues.updatedAt
+            res.status(200).json({
+              message: `Character ID:${updated[1][0].dataValues.id} successfully updated`,
+              updated: updated[1][0].dataValues,
+            })
+          }
+        })
+        .catch(e => next(e))
+    }
   }
 }
 

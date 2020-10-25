@@ -1,7 +1,6 @@
 const request = require('supertest')
 const { sequelize } = require('../models')
 const { queryInterface } = sequelize
-const { set } = require('../app')
 const app = require('../app')
 const APIURI = '/api/v1'
 
@@ -30,18 +29,19 @@ beforeAll(async (done) => {
   }], {})
   done()
 })
+
 afterAll(async (done) => {
   await queryInterface.bulkDelete('Characters', {}, {
-    truncate: true,
-    restartIdentity: true
+    truncate: true, // must be added to use restartIdentity
+    restartIdentity: true // to reset autoincrement counter
   })
 
-  sequelize.close()
+  sequelize.close() // must be added to stop the test, test will keep run otherwise
   done()
 })
 
 describe('Characters Testing', () => {
-	describe.skip('POST /characters => add a new character', () => {
+	describe('POST /characters => add a new character', () => {
 		describe('success case', () => {
       describe('Content-type test', () => {
         describe('use json', () => {
@@ -176,7 +176,8 @@ describe('Characters Testing', () => {
             done()
           })
         })
-        describe.skip('Null Character Name', () => {
+        
+        describe('Null Character Name', () => {
           test('should return empty name error and code 400', async (done) => {
             const res = await request(app)
             .post(`${APIURI}/characters`)
@@ -327,7 +328,7 @@ describe('Characters Testing', () => {
 		})
 	})
 
-	describe.skip('GET /characters => get all created characters', () => {
+	describe('GET /characters => get all created characters', () => {
 		describe('success case', () => {
 			test('should return list of all characters in database; status 200', async () => {
 				const res = await request(app).get(`${APIURI}/characters`)
@@ -357,7 +358,7 @@ describe('Characters Testing', () => {
 	})
 
 	describe('PUT /characters/:id => update character name & power', () => {
-		describe.skip('success case', () => {
+		describe('success case', () => {
       describe('Content-type test', () => {
         describe('use json', () => {
           test('should return success message; status 200; updated character; check wizard value', async (done) => {
@@ -550,15 +551,16 @@ describe('Characters Testing', () => {
       })
 		})
 
-		describe.skip('error case', () => {
-      describe ('Wrong URI', () => {
-        test ('return 404 message', async (done) => {
+		describe('error case', () => {
+      describe('Wrong URI', () => {
+        test('return 404 message', async (done) => {
           const res = await request(app).put(`${APIURI}/character/3`)
           expect(res.status).toEqual(404)
-          expect(res.body).toHaveProperty('message', 'API not found')
+          expect(res.body).toHaveProperty('message', 'API not found!')
           done()
         })
       })
+      
       describe('Wrong character ID', () => {
         test('return 404 character not found message', async (done) => {
           const res = await request(app).put(`${APIURI}/characters/100`)
@@ -567,55 +569,61 @@ describe('Characters Testing', () => {
           done()
         })
       })
-      describe('Wrong character ID', () => {
-        test('return invalid power message; status 400', async (done) => {
-          const res = await request(app)
-          .put(`${APIURI}/characters/3`)
-          .send({ power: -10 })
-          .set('Accept', 'application/json')
 
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
-          done()
+      describe('Power test', () => {
+        describe('minus power input', () => {
+          test('return invalid power message; status 400', async (done) => {
+            const res = await request(app)
+            .put(`${APIURI}/characters/3`)
+            .send({ power: -10 })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 1')
+            done()
+          })
+        })
+        describe('invalid power input', () => {
+          test('return invalid power message; status 400', async (done) => {
+            const res = await request(app)
+            .put(`${APIURI}/characters/3`)
+            .send({ power: 'a' })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(400)
+            expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 1')
+            done()
+          })
         })
       })
-      describe('Wrong character ID', () => {
-        test('return invalid power message; status 400', async (done) => {
-          const res = await request(app)
-          .put(`${APIURI}/characters/3`)
-          .send({ power: 'a' })
-          .set('Accept', 'application/json')
 
-          expect(res.status).toEqual(400)
-          expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
-          done()
+      describe('Forbidden test', () => {
+        describe('Update Character Code', () => {
+          test('return action forbidden message; status 403', async (done) => {
+            const res = await request(app)
+            .put(`${APIURI}/characters/3`)
+            .send({ character_code: 1 })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(403)
+            expect(res.body).toHaveProperty('message', 'Requested Action is Forbidden!')
+            done()
+          })
         })
-      })
-      describe('Update Character Code', () => {
-        test('return action forbidden message; status 403', async (done) => {
-          const res = await request(app)
-          .put(`${APIURI}/characters/3`)
-          .send({ character_code: 1 })
-          .set('Accept', 'application/json')
-
-          expect(res.status).toEqual(403)
-          expect(res.body).toHaveProperty('message', 'Requested Action is Forbidden!')
-          done()
-        })
-      })
-      describe('Update Character Value', () => {
-        test('return action forbidden message; status 403', async (done) => {
-          const res = await request(app)
-          .put(`${APIURI}/characters/3`)
-          .send({ value: 1 })
-          .set('Accept', 'application/json')
-
-          expect(res.status).toEqual(403)
-          expect(res.body).toHaveProperty('message', 'Requested Action is Forbidden!')
-          done()
+  
+        describe('Update Character Value', () => {
+          test('return action forbidden message; status 403', async (done) => {
+            const res = await request(app)
+            .put(`${APIURI}/characters/3`)
+            .send({ value: 1 })
+            .set('Accept', 'application/json')
+  
+            expect(res.status).toEqual(403)
+            expect(res.body).toHaveProperty('message', 'Requested Action is Forbidden!')
+            done()
+          })
         })
       })
 		})
   })
-  //#endregion
 })
