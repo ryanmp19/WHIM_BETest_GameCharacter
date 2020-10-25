@@ -1,11 +1,43 @@
-const request = require('supertest');
-const { set } = require('../app');
-const app = require('../app');
+const request = require('supertest')
+const { sequelize } = require('../models')
+const { queryInterface } = sequelize
+const { set } = require('../app')
+const app = require('../app')
 const APIURI = '/api/v1'
+
+beforeAll(async (done) => {
+  await queryInterface.bulkInsert('Characters', [{
+    name: 'Gandalf',
+    character_code: 1,
+    power: 100,
+    value: 150,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }, {
+    name: 'Legolas',
+    character_code: 2,
+    power: 60,
+    value: 68,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }, {
+    name: 'Frodo',
+    character_code: 3,
+    power: 10,
+    value: 20,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }], {})
+  done()
+})
+afterAll(async (done) => {
+	await queryInterface.bulkDelete('Characters', {})
+  done()
+})
 
 describe('Characters Testing', () => {
   //#region POST
-	describe.skip('POST /characters => add a new character', () => {
+	describe('POST /characters => add a new character', () => {
 		describe('success case', () => {
       test('use json; return status 201; success message; created character; check wizard value', async (done) => {
         const res = await request(app)
@@ -17,7 +49,6 @@ describe('Characters Testing', () => {
         })
         .set('Accept', 'application/json')
 
-        expect(res.error).toBe(false)
         expect(res.status).toEqual(201)
         expect(res.body).not.toHaveProperty('error')
         expect(res.body).toHaveProperty('message', 'Character successfully created')
@@ -39,7 +70,6 @@ describe('Characters Testing', () => {
           power: 100
         })
         
-        expect(res.error).toBe(false)
         expect(res.status).toEqual(201)
         expect(res.body).not.toHaveProperty('error')
         expect(res.body).toHaveProperty('message', 'Character successfully created')
@@ -107,11 +137,11 @@ describe('Characters Testing', () => {
 			})
 		})
 
-		describe('error case', () => {
+		describe.skip('error case', () => {
       describe('Wrong URI', () => {
         test ('should return 404 message', async (done) => {
           const res = await request(app).post(`${APIURI}/character`)
-          expect(res.error).toBe(true)
+          
           expect(res.status).toEqual(404)
           expect(res.body).toHaveProperty('message', 'API not found!')
           done()
@@ -129,7 +159,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Please input Character\'s Name')
           done()
@@ -145,7 +174,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Please input Character\'s Name')
           done()
@@ -165,7 +193,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Please input Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
           done()
@@ -181,7 +208,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Please input Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
           done()
@@ -198,7 +224,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
           done()
@@ -215,7 +240,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Please input a valid Character\'s Code. Available Code:\nCode\tClass\n1\tWizard\n2\tElf\n3\tHobbit')
           done()
@@ -235,7 +259,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Please input Character\'s Power (Greater than 0)')
           done()
@@ -251,7 +274,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Please input Character\'s Power (Greater than 0)')
           done()
@@ -268,7 +290,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
           done()
@@ -285,7 +306,6 @@ describe('Characters Testing', () => {
           })
           set('Accept', 'application/json')
 
-          expect(res.error).toBe(true)
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
           done()
@@ -297,24 +317,21 @@ describe('Characters Testing', () => {
   //#endregion
 
   //#region GET
-	describe('GET /characters => get all created characters', () => {
+	describe.skip('GET /characters => get all created characters', () => {
 		describe('success case', () => {
 			test('should return list of all characters in database; status 200', async () => {
 				const res = await request(app).get(`${APIURI}/characters`)
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('characters')
         expect(res.body).not.toHaveProperty('error')
-        expect(res.body).toHaveProperty('characters', expect.arrayContaining(expect.objectContaining({
-          name: expect.any(String),
-          character_code: expect.any(Number),
-          power: expect.any(Number),
-          value: expect.any(Number)
-        })))
-        // expect(res.body.characters[0]).toContain('name')
-        // expect(res.body.characters[0]).toContain('character_code')
-        // expect(res.body.characters[0]).toContain('power')
-        // expect(res.body.characters[0]).toContain('value')
-
+        expect(res.body).toHaveProperty('characters', expect.arrayContaining([
+          expect.objectContaining({
+            name: expect.any(String),
+            character_code: expect.any(Number),
+            power: expect.any(Number),
+            value: expect.any(Number)
+          })
+        ]))
 			})
 		})
 
@@ -322,7 +339,6 @@ describe('Characters Testing', () => {
       describe('wrong uri', () => {
         test('should give 404 message', async (done) => {
           const res = await request(app).get(`/character`)
-          expect(res.error).toBe(true)
           expect(res.status).toBe(404)
           expect(res.body).toHaveProperty('message', 'API not found!')
           done()
@@ -344,7 +360,6 @@ describe('Characters Testing', () => {
         })
         .set('Accept', 'application/json')
 
-        expect(res.error).toEqual(false)
         expect(res.status).toEqual(200)
         expect(res.body).toHaveProperty('message', 'Character successfully updated')
         expect(res.body).toHaveProperty('updated', expect.objectContaining({
@@ -364,7 +379,6 @@ describe('Characters Testing', () => {
           power: 90
         })
 
-        expect(res.error).toEqual(false)
         expect(res.status).toEqual(200)
         expect(res.body).toHaveProperty('message', 'Character successfully updated')
         expect(res.body).toHaveProperty('updated', expect.objectContaining({
@@ -385,7 +399,6 @@ describe('Characters Testing', () => {
           })
           .set('Accept', 'application/json')
   
-          expect(res.error).toEqual(false)
           expect(res.status).toEqual(200)
           expect(res.body).toHaveProperty('message', 'Character successfully updated')
           expect(res.body).toHaveProperty('updated', expect.objectContaining({
@@ -406,7 +419,6 @@ describe('Characters Testing', () => {
           })
           .set('Accept', 'application/json')
   
-          expect(res.error).toEqual(false)
           expect(res.status).toEqual(200)
           expect(res.body).toHaveProperty('message', 'Character successfully updated')
           expect(res.body).toHaveProperty('updated', expect.objectContaining({
@@ -428,7 +440,6 @@ describe('Characters Testing', () => {
           })
           .set('Accept', 'application/json')
   
-          expect(res.error).toEqual(false)
           expect(res.status).toEqual(200)
           expect(res.body).toHaveProperty('message', 'Character successfully updated')
           expect(res.body).toHaveProperty('updated', expect.objectContaining({
@@ -449,7 +460,6 @@ describe('Characters Testing', () => {
           })
           .set('Accept', 'application/json')
   
-          expect(res.error).toEqual(false)
           expect(res.status).toEqual(200)
           expect(res.body).toHaveProperty('message', 'Character successfully updated')
           expect(res.body).toHaveProperty('updated', expect.objectContaining({
@@ -469,8 +479,7 @@ describe('Characters Testing', () => {
             power: 50
           })
           .set('Accept', 'application/json')
-  
-          expect(res.error).toEqual(false)
+
           expect(res.status).toEqual(200)
           expect(res.body).toHaveProperty('message', 'Character successfully updated')
           expect(res.body).toHaveProperty('updated', expect.objectContaining({
@@ -490,9 +499,7 @@ describe('Characters Testing', () => {
             power: 20
           })
           .set('Accept', 'application/json')
-  
-          expect(res.error).toEqual(false)
-          expect(res.status).toEqual(200)
+
           expect(res.body).toHaveProperty('message', 'Character successfully updated')
           expect(res.body).toHaveProperty('updated', expect.objectContaining({
             name: 'Frodo',
@@ -511,8 +518,7 @@ describe('Characters Testing', () => {
             power: 20
           })
           .set('Accept', 'application/json')
-  
-          expect(res.error).toEqual(false)
+
           expect(res.status).toEqual(200)
           expect(res.body).toHaveProperty('message', 'Character successfully updated')
           expect(res.body).toHaveProperty('updated', expect.objectContaining({
@@ -530,7 +536,6 @@ describe('Characters Testing', () => {
       describe ('Wrong URI', () => {
         test ('return 404 message', async (done) => {
           const res = await request(app).put(`${APIURI}/character/3`)
-          expect(res.error).toEqual(true)
           expect(res.status).toEqual(404)
           expect(res.body).toHaveProperty('message', 'API not found')
           done()
@@ -539,7 +544,6 @@ describe('Characters Testing', () => {
       describe('Wrong character ID', () => {
         test('return 404 character not found message', async (done) => {
           const res = await request(app).put(`${APIURI}/characters/100`)
-          expect(res.error).toEqual(true)
           expect(res.status).toEqual(404)
           expect(res.body).toHaveProperty('message', 'Character not found!')
           done()
@@ -551,8 +555,7 @@ describe('Characters Testing', () => {
           .put(`${APIURI}/characters/3`)
           .send({ power: -10 })
           .set('Accept', 'application/json')
-          
-          expect(res.error).toEqual(true)
+
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
           done()
@@ -564,8 +567,7 @@ describe('Characters Testing', () => {
           .put(`${APIURI}/characters/3`)
           .send({ power: 'a' })
           .set('Accept', 'application/json')
-          
-          expect(res.error).toEqual(true)
+
           expect(res.status).toEqual(400)
           expect(res.body).toHaveProperty('message', 'Character\'s Power must be a number greater than 0')
           done()
@@ -577,8 +579,7 @@ describe('Characters Testing', () => {
           .put(`${APIURI}/characters/3`)
           .send({ character_code: 1 })
           .set('Accept', 'application/json')
-          
-          expect(res.error).toEqual(true)
+
           expect(res.status).toEqual(403)
           expect(res.body).toHaveProperty('message', 'Requested Action is Forbidden!')
           done()
@@ -590,8 +591,7 @@ describe('Characters Testing', () => {
           .put(`${APIURI}/characters/3`)
           .send({ value: 1 })
           .set('Accept', 'application/json')
-          
-          expect(res.error).toEqual(true)
+
           expect(res.status).toEqual(403)
           expect(res.body).toHaveProperty('message', 'Requested Action is Forbidden!')
           done()

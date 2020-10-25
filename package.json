@@ -4,7 +4,7 @@
   "description": "This application is created for PT WHIM Management Indonesia (Evos E-sports) technical test",
   "main": "index.js",
   "scripts": {
-    "test": "SET NODE_ENV=test&& sequelize db:migrate&& sequelize db:seed:all&& jest --detectOpenHandles --runInBand&& sequelize db:migrate:undo:all",
+    "test": "SET NODE_ENV=test&& jest --detectOpenHandles --runInBand",
     "dev": "SET NODE_ENV=development&& nodemon — exec babel-node server.js",
     "test-setup": "SET NODE_ENV=test&& sequelize db:create",
     "test-migrate-db": "SET NODE_ENV=test&& sequelize db:migrate:undo:all && sequelize db:migrate&& sequelize db:seed:all",
