@@ -69,6 +69,19 @@ module.exports = (sequelize, DataTypes) => {
             character.value = character.power < 20 ? 2 * character.power : 3 * character.power
             break
         }
+      },
+      beforeUpdate: (character, opts) => {
+        switch (character.character_code) {
+          case 1:
+            character.value = 1.5 * character.power
+            break
+          case 2:
+            character.value = 2 + (1.1 * character.power)
+            break
+          case 3:
+            character.value = character.power < 20 ? 2 * character.power : 3 * character.power
+            break
+        }
       }
     }
   });
